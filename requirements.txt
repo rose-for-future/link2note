@@ -1,0 +1,26 @@
+# requirements.txt — 信息处理 skill
+#
+# 抓取（抖音/小红书/播客/GitHub/B站…）主要用 Python 标准库（urllib/json/re），
+# 配合系统工具，无需 pip：
+#   系统依赖：ffmpeg、curl、gh(GitHub)、yt-dlp(B站字幕，阶段2)
+#
+# 安装务必加 --only-binary=:all: 走预编译 wheel，避免源码编译失败：
+#   pip install --only-binary=:all: -r requirements.txt
+# 转写依赖需 arm64 原生 Python（如 python3.11/3.12）；x86_64/Rosetta、Python 3.14 装不上。
+
+# --- 转写后端（默认 auto：Apple Silicon→mlx-whisper，否则 faster-whisper）---
+# Apple Silicon（推荐，跑 Metal GPU，默认 large-v3-turbo 模型）：
+mlx-whisper            # 仅 macOS arm64
+# 跨平台 CPU 兜底：
+faster-whisper
+
+# --- 可选：SenseVoice（中文最准，但依赖重、环境挑，llvmlite/numba 常编译失败，默认不启用）---
+# funasr
+# modelscope
+# torch
+# torchaudio
+
+# --- 公众号（阶段2）---
+beautifulsoup4
+markitdown
+pymupdf

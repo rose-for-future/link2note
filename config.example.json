@@ -1,0 +1,10 @@
+{
+  "notes_dir": "/绝对路径/到/你的/Obsidian/📚知识库/信息处理",
+  "assets_dir": "/绝对路径/到/你的/Obsidian/⚙系统/素材/信息收集原文件",
+  "keep_audio": false,
+  "keep_video": false,
+  "save_images": true,
+  "transcribe_backend": "sensevoice",
+  "whisper_model": "small",
+  "xhs_cookie": ""
+}

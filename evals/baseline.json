@@ -1,0 +1,25 @@
+{
+  "_note": "发版前能力回归基线。每条=一个平台的已知良好抓取结果。回归脚本重跑抓取层并与此对比，检测能力缺失（平台改版/解析失效）。内容漂移（标题/图片数变化）只告警，抓取失败/字段为空才算回归失败。",
+  "cases": [
+    {
+      "platform": "douyin",
+      "url": "https://v.douyin.com/hj_QZo86SXM/",
+      "expect": { "title_contains": "体系管人", "audio": true }
+    },
+    {
+      "platform": "podcast",
+      "url": "https://www.xiaoyuzhoufm.com/episode/6a3bed3afd8019cde5947192",
+      "expect": { "title_contains": "没有 AI 转型", "audio_url": true }
+    },
+    {
+      "platform": "xiaohongshu",
+      "url": "http://xhslink.com/o/7BlzmqigMRN",
+      "expect": { "title_contains": "缓存策略", "author": "RAG落地日记", "min_images": 6, "note_type": "image" }
+    },
+    {
+      "platform": "github",
+      "url": "https://github.com/yt-dlp/yt-dlp",
+      "expect": { "title": "yt-dlp/yt-dlp", "readme_min_len": 200, "no_star_noise": true }
+    }
+  ]
+}

@@ -6,7 +6,8 @@
 
 *Paste a link → local transcription + AI summary → Markdown notes in your knowledge base.*
 
-抖音 · 小红书 · 播客 · B站 · 微博 · 知乎 · 公众号 · GitHub
+**已支持**：抖音 · 小红书 · 播客 · GitHub
+🚧 **规划中**：B站 · 微博 · 知乎 · 公众号
 
 ![Claude Code Skill](https://img.shields.io/badge/Claude_Code-Skill-D97706?style=flat-square)
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
@@ -34,7 +35,7 @@
 | 小红书 | 图文 | 抓正文 + 下图片，**图里的内容也识别** |
 | 播客 | 音频 | 小宇宙 / 喜马拉雅 / RSS / 直接音频 |
 | GitHub | 仓库 | README + 简介（去 star 等噪音） |
-| B站 / 微博 / 知乎 / 公众号 | 视频/文章 | 路线图中 |
+| 🚧 B站 / 微博 / 知乎 / 公众号 | 视频/文章 | **规划中，暂不可用**（贴这些链接会提示尚未实现） |
 
 ## 转写后端
 

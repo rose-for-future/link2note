@@ -20,6 +20,11 @@
       "platform": "github",
       "url": "https://github.com/yt-dlp/yt-dlp",
       "expect": { "title": "yt-dlp/yt-dlp", "readme_min_len": 200, "no_star_noise": true }
+    },
+    {
+      "platform": "wechat",
+      "url": "https://mp.weixin.qq.com/s/xFzo8SBzqcxtAL3mYnYV-A",
+      "expect": { "title_contains": "DeepSeek", "author": "机器之心", "min_text_len": 800 }
     }
   ]
 }

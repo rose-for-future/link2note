@@ -69,9 +69,22 @@ def check_github(url, expect):
     return _result(hard, {"仓库": r["title"], "正文长度": len(r["text"]), "无star噪音": "✅" if no_star else "❌"}, drift)
 
 
+def check_wechat(url, expect):
+    from scripts.fetchers.wechat import fetch
+    r = fetch(url, {})
+    hard = bool(r["title"]) and len(r["text"]) >= expect.get("min_text_len", 200)
+    drift = []
+    if expect.get("author") and r["author"] != expect["author"]:
+        drift.append(f"作者变化: {r['author']!r}≠基线{expect['author']!r}")
+    if expect.get("title_contains", "") not in r["title"]:
+        drift.append(f"标题不含基线关键字: {r['title']!r}")
+    return _result(hard, {"标题": r["title"][:30], "作者": r["author"], "正文字数": len(r["text"])}, drift)
+
+
 CHECKS = {
     "douyin": check_douyin, "podcast": check_podcast,
     "xiaohongshu": check_xiaohongshu, "github": check_github,
+    "wechat": check_wechat,
 }
 
 

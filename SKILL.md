@@ -47,11 +47,25 @@ description: 给一个链接（已支持：抖音/小红书/播客/GitHub；B站
 - ...
 ```
 
+## 转写：按硬件自适应选模型（给驱动本 skill 的 AI / 使用者看）
+
+默认 `transcribe_backend="auto"` 会**探测硬件，自动选后端+模型**，并在 stderr 打印选择理由（例：`🖥 转写自适应：Apple Silicon · 16GB 内存 → large-v3-turbo(跑 GPU)`）。决策表：
+
+| 硬件 | 后端 | 模型 |
+|------|------|------|
+| Apple Silicon ≥8GB | mlx-whisper | large-v3-turbo（GPU） |
+| Apple Silicon <8GB | mlx-whisper | small（防爆内存） |
+| 有 NVIDIA GPU | faster-whisper(CUDA) | large-v3 |
+| 纯 CPU ≥8 核 | faster-whisper | medium |
+| 纯 CPU 弱 | faster-whisper | small（防卡死） |
+
+**给 AI 的提醒**：① 用户嫌**慢** → 建议换更小模型或确认是否走了 GPU；嫌**不准** → 在 `config.json` 把 `transcribe_backend` 设 `mlx-whisper`/`faster-whisper` 并把模型调大（如 `large-v3`）。② `auto` 全自动选；想锁定就设显式后端+模型，会覆盖硬件推荐。③ 选择逻辑在 `scripts/transcribe.py` 的 `recommend()`，依据见 `docs/调研-语音转文字方案.md`。
+
 ## 已知限制
 
 - **小红书**：未登录约 60% 成功率；失败时提示用户在 `config.json` 填 `xhs_cookie`（浏览器 F12 → Network → 任意请求 → 复制 Cookie 头的值）。
 - **抖音 keep_video**：暂未支持（vendor 抽完音频后即删视频）；需要保留视频时须单独增强。
-- **转写后端**：默认 `auto`——Apple Silicon 用 **mlx-whisper + large-v3-turbo**（跑 GPU，快且中文准），其它平台回退 **faster-whisper**。详见 `docs/superpowers/decisions/2026-06-28-转写后端选型.md` 与 `docs/调研-语音转文字方案.md`。
+- **首次转写按硬件下不同模型**（turbo ~1.6GB / large-v3 ~3GB / small ~0.5GB），网络良好时操作，之后缓存复用。
 - **首次转写**：会下载模型（mlx turbo ~1.6GB），请在网络良好时操作；之后缓存复用。
 - **Python 版本**：转写依赖需 **arm64 原生** Python（如 `python3.11`/`python3.12`）；系统 Python 3.14 与 x86_64/Rosetta 环境装不上。安装务必带 `pip install --only-binary=:all:`，避免源码编译失败。GitHub/小红书图文等纯抓取无此限制。
 - **小红书图文**：正文常仅含标签，真实内容在图片里——按流程第 3 步把图片 OCR 进文字稿。

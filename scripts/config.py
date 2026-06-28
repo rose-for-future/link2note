@@ -7,9 +7,9 @@ DEFAULTS = {
     "keep_audio": False,
     "keep_video": False,
     "save_images": True,
-    "transcribe_backend": "auto",   # auto(苹果芯片→mlx,否则faster-whisper) | mlx-whisper | faster-whisper | sensevoice
-    "whisper_model": "small",        # faster-whisper 用：small(快)/medium/large-v3
-    "mlx_model": "mlx-community/whisper-large-v3-turbo",  # mlx-whisper 用：turbo 又快又准(Apple GPU)
+    "transcribe_backend": "auto",   # auto=按硬件自动选后端+模型(见 transcribe.recommend) | mlx-whisper | faster-whisper | sensevoice
+    "whisper_model": "small",        # 仅显式 faster-whisper 时用：small/medium/large-v3
+    "mlx_model": "mlx-community/whisper-large-v3-turbo",  # 仅显式 mlx-whisper 时用
     "xhs_cookie": "",                      # 小红书登录态，从浏览器复制；也可用环境变量 XHS_COOKIE
 }
 

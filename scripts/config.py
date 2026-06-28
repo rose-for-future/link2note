@@ -11,6 +11,7 @@ DEFAULTS = {
     "whisper_model": "small",        # 仅显式 faster-whisper 时用：small/medium/large-v3
     "mlx_model": "mlx-community/whisper-large-v3-turbo",  # 仅显式 mlx-whisper 时用
     "xhs_cookie": "",                      # 小红书登录态，从浏览器复制；也可用环境变量 XHS_COOKIE
+    "cookies_browser": "",                 # B站/微博/知乎(yt-dlp)读哪个浏览器的登录cookie：chrome/safari/edge/firefox；空=不带
 }
 
 _SEARCH = [

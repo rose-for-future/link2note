@@ -39,8 +39,12 @@ def extract_bvid(url: str) -> str:
 
 
 def ydl_base():
-    return ["yt-dlp", "--no-check-certificates",
+    base = ["yt-dlp", "--no-check-certificates",
             "--user-agent", MOBILE_UA, "--referer", REFERER]
+    b = os.environ.get("YTDLP_COOKIES_BROWSER")
+    if b:
+        base += ["--cookies-from-browser", b]
+    return base
 
 
 def get_info(url: str, bvid: str) -> tuple:

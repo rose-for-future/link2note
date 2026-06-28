@@ -1,10 +1,13 @@
-import sys, json, argparse
+import os, sys, json, argparse
 from scripts.router import classify
 from scripts.config import load_config
 from scripts.render import render
 from scripts.fetchers import REGISTRY, load_all
 
 def run(url: str, cfg: dict) -> dict:
+    # B站/微博/知乎(yt-dlp)读浏览器登录 cookie 的来源，供 vendor 命令构造读取
+    if cfg.get("cookies_browser"):
+        os.environ["YTDLP_COOKIES_BROWSER"] = cfg["cookies_browser"]
     info = classify(url)                 # 可能抛 ValueError
     fetch = REGISTRY.get(info["platform"])
     if fetch is None:

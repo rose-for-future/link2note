@@ -41,8 +41,11 @@ def extract_bvid(url: str) -> str:
 def ydl_base():
     base = ["yt-dlp", "--no-check-certificates",
             "--user-agent", MOBILE_UA, "--referer", REFERER]
+    f = os.environ.get("YTDLP_COOKIES_FILE")
     b = os.environ.get("YTDLP_COOKIES_BROWSER")
-    if b:
+    if f:
+        base += ["--cookies", f]
+    elif b:
         base += ["--cookies-from-browser", b]
     return base
 

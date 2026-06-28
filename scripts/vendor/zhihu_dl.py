@@ -40,8 +40,12 @@ MAX_RETRY = 3
 
 def run_ydl(args, timeout, capture=False):
     """统一的 yt-dlp 调用，带平台 UA / Referer / 额外参数。"""
-    cookie = (["--cookies-from-browser", os.environ["YTDLP_COOKIES_BROWSER"]]
-              if os.environ.get("YTDLP_COOKIES_BROWSER") else [])
+    if os.environ.get("YTDLP_COOKIES_FILE"):
+        cookie = ["--cookies", os.environ["YTDLP_COOKIES_FILE"]]
+    elif os.environ.get("YTDLP_COOKIES_BROWSER"):
+        cookie = ["--cookies-from-browser", os.environ["YTDLP_COOKIES_BROWSER"]]
+    else:
+        cookie = []
     cmd = ["yt-dlp", "--no-check-certificates",
            "--user-agent", UA, "--referer", REFERER] + cookie + EXTRA_YDL_ARGS + args
     return subprocess.run(cmd, capture_output=capture, text=True,

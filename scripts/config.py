@@ -12,6 +12,7 @@ DEFAULTS = {
     "mlx_model": "mlx-community/whisper-large-v3-turbo",  # 仅显式 mlx-whisper 时用
     "xhs_cookie": "",                      # 小红书登录态，从浏览器复制；也可用环境变量 XHS_COOKIE
     "cookies_browser": "",                 # B站/微博/知乎(yt-dlp)读哪个浏览器的登录cookie：chrome/safari/edge/firefox；空=不带
+    "cookies_file": "",                    # 或指定 cookies.txt 文件路径(浏览器插件导出)，绕开钥匙串/系统密码；优先级高于 cookies_browser
 }
 
 _SEARCH = [

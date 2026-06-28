@@ -97,10 +97,14 @@ def main():
     failed, drifted = [], []
     for case in baseline["cases"]:
         plat = case["platform"]
-        try:
-            res = CHECKS[plat](case["url"], case.get("expect", {}))
-        except Exception as e:
-            res = _result(False, {}, err=f"{type(e).__name__}: {e}")
+        res = None
+        for attempt in (1, 2):   # 失败重试一次，避免网络抖动误报为能力退化
+            try:
+                res = CHECKS[plat](case["url"], case.get("expect", {}))
+                if res["ok"]:
+                    break
+            except Exception as e:
+                res = _result(False, {}, err=f"{type(e).__name__}: {e}")
         verdict = "PASS ✅" if res["ok"] else "FAIL ❌"
         if not res["ok"]:
             failed.append(plat)

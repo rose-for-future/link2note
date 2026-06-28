@@ -81,10 +81,19 @@ def check_wechat(url, expect):
     return _result(hard, {"标题": r["title"][:30], "作者": r["author"], "正文字数": len(r["text"])}, drift)
 
 
+def check_bilibili(url, expect):
+    # 轻量：只验开放 API 拿信息(标题/cid)，不下载转写
+    from scripts.bili_api import extract_bvid, get_info
+    info = get_info(extract_bvid(url))
+    hard = bool(info["title"]) and bool(info["cid"])
+    drift = [] if expect.get("title_contains", "") in info["title"] else [f"标题不含基线关键字: {info['title']!r}"]
+    return _result(hard, {"标题": info["title"][:24], "UP": info["author"], "cid": info["cid"]}, drift)
+
+
 CHECKS = {
     "douyin": check_douyin, "podcast": check_podcast,
     "xiaohongshu": check_xiaohongshu, "github": check_github,
-    "wechat": check_wechat,
+    "wechat": check_wechat, "bilibili": check_bilibili,
 }
 
 

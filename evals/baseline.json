@@ -25,6 +25,11 @@
       "platform": "wechat",
       "url": "https://mp.weixin.qq.com/s/xFzo8SBzqcxtAL3mYnYV-A",
       "expect": { "title_contains": "DeepSeek", "author": "机器之心", "min_text_len": 800 }
+    },
+    {
+      "platform": "bilibili",
+      "url": "https://www.bilibili.com/video/BV1ogVZ6ZEAn/",
+      "expect": { "title_contains": "吵架" }
     }
   ]
 }

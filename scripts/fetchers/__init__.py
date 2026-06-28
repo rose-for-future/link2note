@@ -15,3 +15,7 @@ def load_all():
     from scripts.fetchers import xiaohongshu  # noqa: F401
     from scripts.fetchers import podcast  # noqa: F401
     from scripts.fetchers import github  # noqa: F401
+    from scripts.fetchers import bilibili  # noqa: F401
+    from scripts.fetchers import weibo  # noqa: F401
+    from scripts.fetchers import zhihu  # noqa: F401
+    from scripts.fetchers import wechat  # noqa: F401

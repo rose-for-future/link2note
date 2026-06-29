@@ -30,6 +30,11 @@
       "platform": "bilibili",
       "url": "https://www.bilibili.com/video/BV1ogVZ6ZEAn/",
       "expect": { "title_contains": "吵架" }
+    },
+    {
+      "platform": "zhihu",
+      "url": "https://www.zhihu.com/zvideo/1748676376134422528",
+      "expect": { "title_contains": "工具" }
     }
   ]
 }

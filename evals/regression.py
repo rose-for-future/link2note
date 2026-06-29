@@ -90,10 +90,20 @@ def check_bilibili(url, expect):
     return _result(hard, {"标题": info["title"][:24], "UP": info["author"], "cid": info["cid"]}, drift)
 
 
+def check_zhihu(url, expect):
+    # 轻量：yt-dlp 取标题，验证抓取层可达（不下载转写）
+    from scripts.vendor.zhihu_dl import get_video_info
+    info = get_video_info(url)
+    title = info.get("title", "")
+    kw = expect.get("title_contains", "")
+    hard = bool(title) and (kw in title if kw else True)   # 抓到含关键字的真标题=可达
+    return _result(hard, {"标题": title[:30]}, [])
+
+
 CHECKS = {
     "douyin": check_douyin, "podcast": check_podcast,
     "xiaohongshu": check_xiaohongshu, "github": check_github,
-    "wechat": check_wechat, "bilibili": check_bilibili,
+    "wechat": check_wechat, "bilibili": check_bilibili, "zhihu": check_zhihu,
 }
 
 

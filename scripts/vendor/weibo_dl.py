@@ -48,8 +48,10 @@ def run_ydl(args, timeout, capture=False):
         cookie = []
     cmd = ["yt-dlp", "--no-check-certificates",
            "--user-agent", UA, "--referer", REFERER] + cookie + EXTRA_YDL_ARGS + args
-    return subprocess.run(cmd, capture_output=capture, text=True,
-                          timeout=timeout, check=not capture)
+    if capture:
+        return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+    # 非捕获：yt-dlp 输出导到 stderr，保持调用方 stdout 纯净（process 用它打 JSON）
+    return subprocess.run(cmd, stdout=sys.stderr, text=True, timeout=timeout, check=True)
 
 
 def get_video_info(url: str) -> dict:

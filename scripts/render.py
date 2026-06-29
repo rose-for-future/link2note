@@ -4,9 +4,30 @@ from scripts.models import clean_title
 def _now():
     return datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
+def _existing_link(note_dir: str) -> str | None:
+    """读已存在 文字稿.md 的原文链接，用于判断是否同一内容。"""
+    p = os.path.join(note_dir, "文字稿.md")
+    if os.path.exists(p):
+        with open(p, encoding="utf-8") as f:
+            for line in f:
+                if line.startswith("- 原文链接："):
+                    return line.split("：", 1)[1].strip()
+                if line.startswith("---"):
+                    break
+    return None
+
+
 def render(result: dict, cfg: dict) -> dict:
     folder = clean_title(result["title"])
     note_dir = os.path.join(cfg["notes_dir"], folder)
+    # 防数据丢：同名文件夹但来自不同链接 → 追加 (2)(3)… 不互相覆盖；同链接=重跑，正常覆盖
+    i = 2
+    while True:
+        ex = _existing_link(note_dir)
+        if ex is None or ex == result["url"]:
+            break
+        note_dir = os.path.join(cfg["notes_dir"], f"{folder} ({i})")
+        i += 1
     os.makedirs(note_dir, exist_ok=True)
 
     # 决定是否需要素材目录（lazy：只在真正写入时才创建）

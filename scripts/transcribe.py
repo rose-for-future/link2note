@@ -81,6 +81,9 @@ def resolve(cfg: dict) -> tuple:
 def _mlx_whisper(audio_path: str, model_repo: str) -> str:
     import mlx_whisper
     res = mlx_whisper.transcribe(audio_path, path_or_hf_repo=model_repo, language="zh")
+    segs = res.get("segments") or []
+    if segs:  # 按片段分行，长稿可读
+        return "\n".join((s.get("text") or "").strip() for s in segs if (s.get("text") or "").strip())
     return (res.get("text") or "").strip()
 
 
@@ -89,7 +92,7 @@ def _faster_whisper(audio_path: str, model_size: str) -> str:
     # device="auto"：有 CUDA 自动用 GPU，否则 CPU；int8 在两端都可用
     model = WhisperModel(model_size, device="auto", compute_type="int8")
     segments, _ = model.transcribe(audio_path, language="zh")
-    return "".join(seg.text for seg in segments).strip()
+    return "\n".join(seg.text.strip() for seg in segments if seg.text.strip())
 
 
 def _sensevoice(audio_path: str) -> str:

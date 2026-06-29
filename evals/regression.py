@@ -100,10 +100,19 @@ def check_zhihu(url, expect):
     return _result(hard, {"标题": title[:30]}, [])
 
 
+def check_csdn(url, expect):
+    from scripts.fetchers.csdn import fetch
+    r = fetch(url, {})
+    hard = bool(r["title"]) and len(r["text"]) >= expect.get("min_text_len", 200)
+    drift = [] if expect.get("title_contains", "") in r["title"] else [f"标题不含基线关键字: {r['title']!r}"]
+    return _result(hard, {"标题": r["title"][:24], "正文字数": len(r["text"])}, drift)
+
+
 CHECKS = {
     "douyin": check_douyin, "podcast": check_podcast,
     "xiaohongshu": check_xiaohongshu, "github": check_github,
     "wechat": check_wechat, "bilibili": check_bilibili, "zhihu": check_zhihu,
+    "csdn": check_csdn,
 }
 
 

@@ -19,3 +19,4 @@ def load_all():
     from scripts.fetchers import weibo  # noqa: F401
     from scripts.fetchers import zhihu  # noqa: F401
     from scripts.fetchers import wechat  # noqa: F401
+    from scripts.fetchers import csdn  # noqa: F401

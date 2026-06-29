@@ -9,6 +9,7 @@ _RULES = [
     (r"(weibo\.com|weibo\.cn)", "weibo", "video"),
     (r"(zhihu\.com)", "zhihu", "article"),
     (r"(mp\.weixin\.qq\.com)", "wechat", "article"),
+    (r"(csdn\.net)", "csdn", "article"),
     (r"(github\.com)", "github", "repo"),
     (r"(/rss|\.xml$|\.mp3$)", "podcast", "audio"),
 ]

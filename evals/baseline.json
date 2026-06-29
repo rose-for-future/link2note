@@ -35,6 +35,11 @@
       "platform": "zhihu",
       "url": "https://www.zhihu.com/zvideo/1748676376134422528",
       "expect": { "title_contains": "工具" }
+    },
+    {
+      "platform": "csdn",
+      "url": "https://blog.csdn.net/Python_trys/article/details/145342173",
+      "expect": { "title_contains": "Python", "min_text_len": 500 }
     }
   ]
 }

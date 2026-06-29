@@ -11,6 +11,7 @@ from scripts.router import classify
     ("https://weibo.com/1234/Abcdef", "weibo", "video"),
     ("https://www.zhihu.com/question/1/answer/2", "zhihu", "article"),
     ("https://mp.weixin.qq.com/s/abcDEF", "wechat", "article"),
+    ("https://blog.csdn.net/user/article/details/123", "csdn", "article"),
     ("https://github.com/owner/repo", "github", "repo"),
     # Regression tests: ensure generic media/RSS rules don't shadow platform rules
     ("https://weibo.com/u/123/rss", "weibo", "video"),

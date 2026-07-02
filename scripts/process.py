@@ -1,4 +1,4 @@
-import os, sys, json, argparse
+import os, sys, json, shutil, tempfile, argparse
 from scripts.router import classify
 from scripts.config import load_config
 from scripts.render import render
@@ -20,8 +20,11 @@ def _load_index(cfg):
 def _save_index(cfg, idx):
     try:
         os.makedirs(cfg["notes_dir"], exist_ok=True)
-        with open(os.path.join(cfg["notes_dir"], _INDEX), "w", encoding="utf-8") as f:
+        # 原子写：写临时文件再 os.replace，避免崩溃留半截 JSON 导致全量索引丢失
+        fd, tmp = tempfile.mkstemp(dir=cfg["notes_dir"], suffix=".tmp")
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
             json.dump(idx, f, ensure_ascii=False, indent=2)
+        os.replace(tmp, os.path.join(cfg["notes_dir"], _INDEX))
     except Exception:
         pass
 
@@ -50,12 +53,22 @@ def run(url: str, cfg: dict) -> dict:
     if fetch is None:
         raise NotImplementedError(f"平台 {info['platform']} 的 fetcher 尚未实现")
     result = fetch(url, cfg)
-    out = render(result, cfg)
+    try:
+        out = render(result, cfg)
+    finally:
+        # 清理 fetcher 登记的临时下载目录（render 已把要留的素材拷走）
+        td = (result.get("extra") or {}).get("_tempdir")
+        if td:
+            shutil.rmtree(td, ignore_errors=True)
     out["platform"] = result["platform"]
     out["title"] = result["title"]
     out["skipped"] = False
 
-    idx[url] = {"dir": out["note_dir"], "platform": out["platform"], "title": out["title"]}
+    rec = {"dir": out["note_dir"], "platform": out["platform"], "title": out["title"]}
+    idx[url] = rec
+    # 短链/长链都能命中：也用 fetcher 解析后的规范原文链接存一份（如小红书 xhslink→长链）
+    if result.get("url") and result["url"] != url:
+        idx[result["url"]] = rec
     _save_index(cfg, idx)
     return out
 

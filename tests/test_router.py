@@ -27,3 +27,19 @@ def test_classify(url, platform, ctype):
 def test_unknown_raises():
     with pytest.raises(ValueError):
         classify("https://example.com/foo")
+
+
+def test_domain_spoofing_rejected():
+    # 子串冒充域名不应被判成平台（否则会把 cookie 发给攻击者）
+    with pytest.raises(ValueError):
+        classify("http://xhslink.com.attacker.com/note")
+    with pytest.raises(ValueError):
+        classify("http://evil.com/?ref=github.com")
+    with pytest.raises(ValueError):
+        classify("http://notbilibili.com/video/BV1x")
+
+
+def test_b23_and_subdomains_ok():
+    assert classify("https://b23.tv/AbCdEf")["platform"] == "bilibili"
+    assert classify("https://m.bilibili.com/video/BV1x")["platform"] == "bilibili"
+    assert classify("https://blog.csdn.net/u/article/details/1")["platform"] == "csdn"

@@ -10,6 +10,12 @@ def test_apple_silicon_big_ram_picks_turbo():
     assert backend == "mlx-whisper" and "turbo" in model
 
 
+def test_ram_detect_fail_falls_back_to_small():
+    # 内存探测失败(0) 应按小内存兜底选 small，而不是被短路选中 turbo
+    backend, model, _ = recommend(_hw(apple=True, ram=0))
+    assert backend == "mlx-whisper" and model.endswith("whisper-small")
+
+
 def test_apple_silicon_low_ram_picks_small():
     backend, model, _ = recommend(_hw(apple=True, ram=6))
     assert backend == "mlx-whisper" and model.endswith("whisper-small")

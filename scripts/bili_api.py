@@ -26,11 +26,38 @@ def _get(url: str) -> dict:
     return json.load(urllib.request.urlopen(req, timeout=25))
 
 
+def _data(resp: dict, what: str) -> dict:
+    """校验 B站响应：code 非 0 或 data 为空时给可读报错，而不是裸 TypeError/KeyError。"""
+    if not isinstance(resp, dict) or resp.get("code") not in (0, None) or resp.get("data") is None:
+        msg = (resp or {}).get("message") or "视频不可用（可能已删除/地区限制/需登录）"
+        raise RuntimeError(f"B站{what}失败：{msg}")
+    return resp["data"]
+
+
+def _resolve_redirect(url: str) -> str:
+    """跟随 302 拿最终 URL（b23.tv 短链用）。"""
+    try:
+        r = subprocess.run(["curl", "-s", "-o", "/dev/null", "-w", "%{url_effective}",
+                            "-L", "-H", f"User-Agent: {_UA}", url],
+                           capture_output=True, text=True, timeout=15)
+        return r.stdout.strip() or url
+    except Exception:
+        return url
+
+
 def extract_bvid(url: str) -> str:
+    if "b23.tv" in url:                       # 短链先跟随重定向拿到 BV 号
+        url = _resolve_redirect(url)
     m = re.search(r"(BV[0-9A-Za-z]+)", url)
     if not m:
         raise ValueError(f"无法从链接提取 BV 号：{url}")
     return m.group(1)
+
+
+def extract_page(url: str) -> int:
+    """多 P 视频的分 P 号，默认 1。"""
+    m = re.search(r"[?&]p=(\d+)", url)
+    return int(m.group(1)) if m else 1
 
 
 def _mixin_key() -> str:
@@ -47,20 +74,29 @@ def _sign(params: dict, mixin: str) -> str:
     return urllib.parse.urlencode(params)
 
 
-def get_info(bvid: str) -> dict:
-    d = _get(f"https://api.bilibili.com/x/web-interface/view?bvid={bvid}")["data"]
-    return {"title": d["title"], "author": d["owner"]["name"], "cid": d["cid"], "bvid": bvid}
+def get_info(bvid: str, p: int = 1) -> dict:
+    d = _data(_get(f"https://api.bilibili.com/x/web-interface/view?bvid={bvid}"), "取信息")
+    pages = d.get("pages") or []
+    cid = d["cid"]
+    title = d["title"]
+    if p > 1 and len(pages) >= p:             # 多 P：取对应分 P 的 cid + 分 P 标题
+        cid = pages[p - 1]["cid"]
+        part = (pages[p - 1].get("part") or "").strip()
+        title = f"{title} - P{p}" + (f" {part}" if part else "")
+    return {"title": title, "author": d["owner"]["name"], "cid": cid, "bvid": bvid, "p": p}
 
 
 def get_subtitle(bvid: str, cid: int) -> str | None:
-    """字幕优先：有官方/AI字幕则返回纯文字，否则 None。"""
+    """字幕优先：有官方/AI字幕则返回纯文字（优先简体中文），否则 None。"""
     try:
         q = _sign({"bvid": bvid, "cid": cid}, _mixin_key())
         d = _get(f"https://api.bilibili.com/x/player/wbi/v2?{q}")
         subs = d.get("data", {}).get("subtitle", {}).get("subtitles", [])
         if not subs:
             return None
-        url = subs[0]["subtitle_url"]
+        # 优先中文字幕，避免多语言时误取英文
+        sub = next((s for s in subs if "zh" in (s.get("lan") or "").lower()), subs[0])
+        url = sub["subtitle_url"]
         if url.startswith("//"):
             url = "https:" + url
         body = _get(url).get("body", [])
@@ -71,10 +107,13 @@ def get_subtitle(bvid: str, cid: int) -> str | None:
 
 
 def download_audio(bvid: str, cid: int, output_dir: str) -> str:
-    """下 DASH 音频流（m4s）。返回本地路径。"""
+    """下 DASH 音频流（m4s）。返回本地路径。无 DASH 时给可读报错。"""
     q = _sign({"bvid": bvid, "cid": cid, "qn": 64, "fnval": 16, "fourk": 1}, _mixin_key())
-    d = _get(f"https://api.bilibili.com/x/player/wbi/playurl?{q}")
-    au = d["data"]["dash"]["audio"][0]["baseUrl"]
+    d = _data(_get(f"https://api.bilibili.com/x/player/wbi/playurl?{q}"), "取音频流")
+    dash = d.get("dash")
+    if not dash or not dash.get("audio"):
+        raise RuntimeError("B站该视频无 DASH 音频流（老视频/互动视频/大会员专享等），暂不支持")
+    au = dash["audio"][0]["baseUrl"]
     path = os.path.join(output_dir or tempfile.mkdtemp(prefix="bili-"), f"{bvid}.m4s")
     subprocess.run(["curl", "-s", "-L", "-o", path,
                     "-H", f"User-Agent: {_UA}", "-H", "Referer: https://www.bilibili.com/", au],

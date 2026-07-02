@@ -34,7 +34,8 @@ def render(result: dict, cfg: dict) -> dict:
     keep_imgs = cfg.get("save_images", True) and result["images"]
     keep_audio = cfg.get("keep_audio") and result["media"].get("audio")
     keep_video = cfg.get("keep_video") and result["media"].get("video")
-    assets_dir_path = os.path.join(cfg["assets_dir"], folder)
+    # 素材目录必须跟成稿目录同名（含去重后的 (2)(3)），否则不同笔记素材互相覆盖
+    assets_dir_path = os.path.join(cfg["assets_dir"], os.path.basename(note_dir))
     archived = False  # 只要成功写入一个文件就置 True
 
     def _ensure_assets_dir():

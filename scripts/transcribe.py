@@ -54,8 +54,9 @@ def recommend(hw: dict) -> tuple:
     """按硬件 → (backend, model, 理由)。纯函数，可单测。"""
     if hw["apple_silicon"]:
         ram = hw["ram_gb"]
-        if ram and ram < 8:
-            return "mlx-whisper", _MLX["small"], f"Apple Silicon · {ram:.0f}GB 内存(偏小) → small 防爆内存"
+        if not ram or ram < 8:   # 探测失败(0)也按小内存兜底，避免选 turbo 在低配机 OOM
+            tag = f"{ram:.0f}GB" if ram else "内存未知"
+            return "mlx-whisper", _MLX["small"], f"Apple Silicon · {tag} → small 防爆内存"
         return "mlx-whisper", _MLX["turbo"], f"Apple Silicon · {ram:.0f}GB 内存 → large-v3-turbo(跑 GPU)"
     if hw["has_nvidia"]:
         return "faster-whisper", "large-v3", "检测到 NVIDIA GPU → large-v3(CUDA)"

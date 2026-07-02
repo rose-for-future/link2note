@@ -6,6 +6,23 @@ def _cfg(tmp_path):
     return {"notes_dir": str(tmp_path/"notes"), "assets_dir": str(tmp_path/"assets"),
             "keep_audio": False, "keep_video": False, "save_images": True}
 
+def test_assets_dir_follows_deduped_note_dir(tmp_path):
+    # 同标题不同链接：成稿目录去重后，素材目录也必须跟着去重，否则图片互相覆盖
+    s1 = tmp_path/"s1"; s1.mkdir(); (s1/"p.jpg").write_bytes(b"AAA")
+    s2 = tmp_path/"s2"; s2.mkdir(); (s2/"p.jpg").write_bytes(b"BBBB")
+    cfg = _cfg(tmp_path)
+    r1 = make_result("xhs", "image_text", "http://x/1", "同标题", "t1",
+                     images=[{"path": str(s1/"p.jpg"), "url": ""}])
+    r2 = make_result("xhs", "image_text", "http://x/2", "同标题", "t2",
+                     images=[{"path": str(s2/"p.jpg"), "url": ""}])
+    o1 = render(r1, cfg)
+    o2 = render(r2, cfg)
+    assert o1["note_dir"] != o2["note_dir"]       # 成稿去重
+    assert o1["assets_dir"] != o2["assets_dir"]   # 素材也去重（修复点）
+    assert open(os.path.join(o1["assets_dir"], "00_p.jpg"), "rb").read() == b"AAA"
+    assert open(os.path.join(o2["assets_dir"], "00_p.jpg"), "rb").read() == b"BBBB"
+
+
 def test_writes_transcript_with_link_on_top(tmp_path):
     r = make_result("douyin", "video", "http://x/v", "我的视频", "这是文字稿正文")
     out = render(r, _cfg(tmp_path))

@@ -20,6 +20,7 @@ def fetch(url, cfg):
             raise RuntimeError("小红书解析失败：请在 config 设置 xhs_cookie 或手动复制正文")
     title = V.compute_title(data)
     images = []
+    workdir = None
     if cfg.get("save_images", True) and data.get("images"):
         workdir = tempfile.mkdtemp(prefix="xhs-")
         refs = V.download_images(data["images"], workdir, "xhs", cookie)
@@ -29,6 +30,8 @@ def fetch(url, cfg):
             else:
                 images.append({"path": None, "url": val})
     extra = {"tags": data.get("tags", []), "note_type": data.get("note_type")}
+    if workdir:                       # 临时图片目录交给 process 在 render 后清理
+        extra["_tempdir"] = workdir
     text = data.get("desc", "")
     if data.get("note_type") == "video" and data.get("video_url"):
         extra["video_url"] = data["video_url"]
